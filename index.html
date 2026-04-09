@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku - The Clean One</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            /* Black-Blue Theme (Default) */
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-cell: #21262d;
+            --bg-cell-selected: #1f6feb;
+            --bg-cell-highlight: #388bfd26;
+            --bg-cell-fixed: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-fixed: #f0f6fc;
+            --accent: #58a6ff;
+            --border: #30363d;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --success: #238636;
+            --error: #da3633;
+        }
+
+        .theme-white-brown {
+            --bg-primary: #f5f5dc;
+            --bg-secondary: #e8e4c9;
+            --bg-cell: #fffef0;
+            --bg-cell-selected: #8b4513;
+            --bg-cell-highlight: #d2691e20;
+            --bg-cell-fixed: #f0e6d2;
+            --text-primary: #3e2723;
+            --text-secondary: #5d4037;
+            --text-fixed: #2e1c15;
+            --accent: #8b4513;
+            --border: #d7ccc8;
+            --shadow: rgba(62, 39, 35, 0.2);
+            --success: #5d4037;
+            --error: #bf360c;
+        }
+
+        .theme-black-green {
+            --bg-primary: #0a0f0d;
+            --bg-secondary: #111a15;
+            --bg-cell: #1a2620;
+            --bg-cell-selected: #238636;
+            --bg-cell-highlight: #2ea04330;
+            --bg-cell-fixed: #1a2620;
+            --text-primary: #aff5b4;
+            --text-secondary: #7ee787;
+            --text-fixed: #ffffff;
+            --accent: #3fb950;
+            --border: #2d3832;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --success: #238636;
+            --error: #f85149;
+        }
+
+        .theme-white-black {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-cell: #fafafa;
+            --bg-cell-selected: #212121;
+            --bg-cell-highlight: #00000010;
+            --bg-cell-fixed: #f0f0f0;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-fixed: #000000;
+            --accent: #424242;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #212121;
+            --error: #d32f2f;
+        }
+
+        /* NEW THEMES */
+
+        /* Blue and Orange - Vibrant contrast */
+        .theme-blue-orange {
+            --bg-primary: #1e3a5f;
+            --bg-secondary: #2c5282;
+            --bg-cell: #2d3748;
+            --bg-cell-selected: #ed8936;
+            --bg-cell-highlight: #ed893630;
+            --bg-cell-fixed: #2d4a6f;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --text-fixed: #ffffff;
+            --accent: #f6ad55;
+            --border: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --success: #ed8936;
+            --error: #fc8181;
+        }
+
+        /* Yellow and Blue - Sunny and bright */
+        .theme-yellow-blue {
+            --bg-primary: #fef3c7;
+            --bg-secondary: #fde68a;
+            --bg-cell: #fffbeb;
+            --bg-cell-selected: #2563eb;
+            --bg-cell-highlight: #3b82f620;
+            --bg-cell-fixed: #fef9c3;
+            --text-primary: #1e3a8a;
+            --text-secondary: #3b82f6;
+            --text-fixed: #1e40af;
+            --accent: #1d4ed8;
+            --border: #fcd34d;
+            --shadow: rgba(251, 191, 36, 0.3);
+            --success: #2563eb;
+            --error: #dc2626;
+        }
+
+        /* Navy and Teal - Ocean depths */
+        .theme-navy-teal {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-cell: #334155;
+            --bg-cell-selected: #14b8a6;
+            --bg-cell-highlight: #2dd4bf30;
+            --bg-cell-fixed: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-fixed: #f8fafc;
+            --accent: #5eead4;
+            --border: #475569;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --success: #14b8a6;
+            --error: #f87171;
+        }
+
+        /* Dark Grey and Bright Yellow - High contrast industrial */
+        .theme-grey-yellow {
+            --bg-primary: #374151;
+            --bg-secondary: #4b5563;
+            --bg-cell: #6b7280;
+            --bg-cell-selected: #facc15;
+            --bg-cell-highlight: #facc1540;
+            --bg-cell-fixed: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-fixed: #ffffff;
+            --accent: #fde047;
+            --border: #6b7280;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --success: #eab308;
+            --error: #ef4444;
+        }
+
+        /* Pink and Grey - Soft modern */
+        .theme-pink-grey {
+            --bg-primary: #fce7f3;
+            --bg-secondary: #fbcfe8;
+            --bg-cell: #fdf2f8;
+            --bg-cell-selected: #6b7280;
+            --bg-cell-highlight: #ec489920;
+            --bg-cell-fixed: #f9a8d4;
+            --text-primary: #831843;
+            --text-secondary: #be185d;
+            --text-fixed: #500724;
+            --accent: #db2777;
+            --border: #f9a8d4;
+            --shadow: rgba(219, 39, 119, 0.2);
+            --success: #be185d;
+            --error: #991b1b;
+        }
+
+        /* Forest Green and Moss Green - Natural earthy */
+        .theme-forest-moss {
+            --bg-primary: #14532d;
+            --bg-secondary: #166534;
+            --bg-cell: #15803d;
+            --bg-cell-selected: #a3e635;
+            --bg-cell-highlight: #a3e63530;
+            --bg-cell-fixed: #14532d;
+            --text-primary: #ecfccb;
+            --text-secondary: #bef264;
+            --text-fixed: #ffffff;
+            --accent: #84cc16;
+            --border: #22c55e;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --success: #65a30d;
+            --error: #fca5a5;
+        }
+
+        /* Lavender and Indigo - Dreamy purple */
+        .theme-lavender-indigo {
+            --bg-primary: #e0e7ff;
+            --bg-secondary: #c7d2fe;
+            --bg-cell: #eef2ff;
+            --bg-cell-selected: #4f46e5;
+            --bg-cell-highlight: #6366f130;
+            --bg-cell-fixed: #ddd6fe;
+            --text-primary: #312e81;
+            --text-secondary: #4338ca;
+            --text-fixed: #1e1b4b;
+            --accent: #4338ca;
+            --border: #a5b4fc;
+            --shadow: rgba(99, 102, 241, 0.2);
+            --success: #4f46e5;
+            --error: #dc2626;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: var(--bg-cell);
+            color: var(--text-primary);
+        }
+
+        .game-info {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            padding: 5px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .diff-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .diff-btn.active {
+            background: var(--bg-cell-selected);
+            color: white;
+        }
+
+        .diff-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: var(--bg-cell);
+        }
+
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 1px;
+            background: var(--border);
+            padding: 2px;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px var(--shadow);
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1;
+        }
+
+        .cell {
+            background: var(--bg-cell);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .cell:hover:not(.fixed):not(.selected) {
+            background: var(--bg-cell-highlight);
+        }
+
+        .cell.selected {
+            background: var(--bg-cell-selected);
+            color: white;
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 10px var(--bg-cell-selected);
+            border-radius: 4px;
+        }
+
+        .cell.fixed {
+            background: var(--bg-cell-fixed);
+            color: var(--text-fixed);
+            font-weight: 700;
+        }
+
+        .cell.highlighted {
+            background: var(--bg-cell-highlight);
+        }
+
+        .cell.error {
+            color: var(--error);
+            animation: shake 0.3s;
+        }
+
+        .cell.same-number {
+            background: var(--bg-cell-highlight);
+            font-weight: 700;
+        }
+
+        .cell:nth-child(3n):not(:nth-child(9n)) {
+            border-right: 2px solid var(--border);
+        }
+
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 2px solid var(--border);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .notes {
+            position: absolute;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+            height: 100%;
+            padding: 2px;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .num-btn {
+            aspect-ratio: 1;
+            border: 2px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .num-btn:hover {
+            background: var(--bg-cell-selected);
+            color: white;
+            border-color: var(--bg-cell-selected);
+            transform: scale(1.1);
+        }
+
+        .num-btn:active {
+            transform: scale(0.95);
+        }
+
+        .num-btn.erase {
+            font-size: 16px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-cell);
+            border-color: var(--accent);
+        }
+
+        .control-btn.active {
+            background: var(--bg-cell-selected);
+            color: white;
+            border-color: var(--bg-cell-selected);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: slideUp 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            font-weight: 300;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .theme-option {
+            padding: 16px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .theme-black-blue {
+            background: #0d1117;
+            color: #58a6ff;
+        }
+
+        .theme-white-brown {
+            background: #f5f5dc;
+            color: #8b4513;
+        }
+
+        .theme-black-green {
+            background: #0a0f0d;
+            color: #3fb950;
+        }
+
+        .theme-white-black {
+            background: #ffffff;
+            color: #212121;
+            border: 1px solid #e0e0e0;
+        }
+
+        .theme-blue-orange {
+            background: #1e3a5f;
+            color: #ed8936;
+        }
+
+        .theme-yellow-blue {
+            background: #fef3c7;
+            color: #2563eb;
+        }
+
+        .theme-navy-teal {
+            background: #0f172a;
+            color: #14b8a6;
+        }
+
+        .theme-grey-yellow {
+            background: #374151;
+            color: #facc15;
+        }
+
+        .theme-pink-grey {
+            background: #fce7f3;
+            color: #db2777;
+        }
+
+        .theme-forest-moss {
+            background: #14532d;
+            color: #a3e635;
+        }
+
+        .theme-lavender-indigo {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: var(--bg-cell-selected);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .win-message {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: var(--bg-cell);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 5px;
+        }
+
+        .new-game-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .timer {
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .cell {
+                font-size: 20px;
+            }
+            
+            .num-btn {
+                font-size: 18px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+
+            .theme-option {
+                font-size: 11px;
+                padding: 12px 8px;
+            }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SUDOKU</h1>
+            <button class="menu-btn" onclick="showMenu()">☰</button>
+        </header>
+
+        <div class="difficulty-selector">
+            <button class="diff-btn active" onclick="setDifficulty('easy')">Easy</button>
+            <button class="diff-btn" onclick="setDifficulty('medium')">Medium</button>
+            <button class="diff-btn" onclick="setDifficulty('hard')">Hard</button>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">Mistakes</div>
+                <div class="info-value" id="mistakes">0/3</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Time</div>
+                <div class="info-value timer" id="timer">00:00</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Score</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+        </div>
+
+        <div class="sudoku-grid" id="grid"></div>
+
+        <div class="number-pad">
+            <button class="num-btn" onclick="inputNumber(1)">1</button>
+            <button class="num-btn" onclick="inputNumber(2)">2</button>
+            <button class="num-btn" onclick="inputNumber(3)">3</button>
+            <button class="num-btn" onclick="inputNumber(4)">4</button>
+            <button class="num-btn" onclick="inputNumber(5)">5</button>
+            <button class="num-btn" onclick="inputNumber(6)">6</button>
+            <button class="num-btn" onclick="inputNumber(7)">7</button>
+            <button class="num-btn" onclick="inputNumber(8)">8</button>
+            <button class="num-btn" onclick="inputNumber(9)">9</button>
+            <button class="num-btn erase" onclick="erase()">✕</button>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" id="noteBtn" onclick="toggleNoteMode()">
+                ✎ Notes
+            </button>
+            <button class="control-btn" onclick="undo()">
+                ↶ Undo
+            </button>
+            <button class="control-btn" onclick="hint()">
+                💡 Hint
+            </button>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div class="modal" id="menuModal">
+        <div class="modal-content">
+            <h2>Select Theme</h2>
+            <div class="theme-grid">
+                <div class="theme-option theme-black-blue active" onclick="setTheme('black-blue')">
+                    Black Blue
+                </div>
+                <div class="theme-option theme-white-brown" onclick="setTheme('white-brown')">
+                    White Brown
+                </div>
+                <div class="theme-option theme-black-green" onclick="setTheme('black-green')">
+                    Black Green
+                </div>
+                <div class="theme-option theme-white-black" onclick="setTheme('white-black')">
+                    White Black
+                </div>
+                <div class="theme-option theme-blue-orange" onclick="setTheme('blue-orange')">
+                    Blue Orange
+                </div>
+                <div class="theme-option theme-yellow-blue" onclick="setTheme('yellow-blue')">
+                    Yellow Blue
+                </div>
+                <div class="theme-option theme-navy-teal" onclick="setTheme('navy-teal')">
+                    Navy Teal
+                </div>
+                <div class="theme-option theme-grey-yellow" onclick="setTheme('grey-yellow')">
+                    Grey Yellow
+                </div>
+                <div class="theme-option theme-pink-grey" onclick="setTheme('pink-grey')">
+                    Pink Grey
+                </div>
+                <div class="theme-option theme-forest-moss" onclick="setTheme('forest-moss')">
+                    Forest Moss
+                </div>
+                <div class="theme-option theme-lavender-indigo" onclick="setTheme('lavender-indigo')">
+                    Lavender Indigo
+                </div>
+            </div>
+            <button class="close-btn" onclick="closeMenu()">Close</button>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <div class="win-message">🎉</div>
+            <h2>Congratulations!</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">You solved the puzzle!</p>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value" id="finalTime">00:00</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="finalScore">0</div>
+                </div>
+            </div>
+            <button class="new-game-btn" onclick="newGame()">New Game</button>
+        </div>
+    </div>
+
+    <script>
+        let grid = [];
+        let solution = [];
+        let selectedCell = null;
+        let mistakes = 0;
+        let maxMistakes = 3;
+        let score = 0;
+        let timer = 0;
+        let timerInterval;
+        let noteMode = false;
+        let difficulty = 'easy';
+        let history = [];
+        let currentTheme = 'black-blue';
+
+        const difficulties = {
+            easy: 35,
+            medium: 45,
+            hard: 55
+        };
+
+        function init() {
+            createGrid();
+            newGame();
+        }
+
+        function createGrid() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.onclick = () => selectCell(i);
+                gridEl.appendChild(cell);
+            }
+        }
+
+        function generateSudoku() {
+            // Initialize empty grid
+            grid = Array(9).fill().map(() => Array(9).fill(0));
+            
+            // Fill diagonal boxes first (they are independent)
+            for (let box = 0; box < 9; box += 3) {
+                fillBox(box, box);
+            }
+            
+            // Solve the rest
+            solveSudoku(grid);
+            
+            // Create solution copy
+            solution = grid.map(row => [...row]);
+            
+            // Remove numbers based on difficulty
+            const cellsToRemove = difficulties[difficulty];
+            let removed = 0;
+            while (removed < cellsToRemove) {
+                const row = Math.floor(Math.random() * 9);
+                const col = Math.floor(Math.random() * 9);
+                if (grid[row][col] !== 0) {
+                    grid[row][col] = 0;
+                    removed++;
+                }
+            }
+        }
+
+        function fillBox(startRow, startCol) {
+            const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            shuffleArray(nums);
+            let idx = 0;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    grid[startRow + i][startCol + j] = nums[idx++];
+                }
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function solveSudoku(board) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (board[row][col] === 0) {
+                        for (let num = 1; num <= 9; num++) {
+                            if (isValid(board, row, col, num)) {
+                                board[row][col] = num;
+                                if (solveSudoku(board)) return true;
+                                board[row][col] = 0;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function isValid(board, row, col, num) {
+            // Check row
+            for (let x = 0; x < 9; x++) if (board[row][x] === num) return false;
+            // Check column
+            for (let x = 0; x < 9; x++) if (board[x][col] === num) return false;
+            // Check box
+            const startRow = row - row % 3, startCol = col - col % 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[i + startRow][j + startCol] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        function renderGrid() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, i) => {
+                const row = Math.floor(i / 9);
+                const col = i % 9;
+                const value = grid[row][col];
+                
+                cell.innerHTML = '';
+                cell.className = 'cell';
+                
+                if (value !== 0) {
+                    cell.textContent = value;
+                    cell.classList.add('fixed');
+                }
+            });
+        }
+
+        function selectCell(index) {
+            selectedCell = index;
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, i) => {
+                cell.classList.remove('selected', 'highlighted', 'same-number');
+                
+                const row = Math.floor(i / 9);
+                const col = i % 9;
+                const selectedRow = Math.floor(index / 9);
+                const selectedCol = index % 9;
+                
+                if (i === index) {
+                    cell.classList.add('selected');
+                } else if (row === selectedRow || col === selectedCol) {
+                    cell.classList.add('highlighted');
+                }
+                
+                // Highlight same numbers
+                if (cell.textContent && cells[index].textContent && 
+                    cell.textContent === cells[index].textContent && i !== index) {
+                    cell.classList.add('same-number');
+                }
+            });
+        }
+
+        function inputNumber(num) {
+            if (selectedCell === null) return;
+            
+            const row = Math.floor(selectedCell / 9);
+            const col = selectedCell % 9;
+            
+            if (grid[row][col] !== 0 && typeof grid[row][col] === 'number') return;
+            
+            const cells = document.querySelectorAll('.cell');
+            const cell = cells[selectedCell];
+            
+            if (noteMode) {
+                // Toggle note
+                if (!cell.querySelector('.notes')) {
+                    const notesDiv = document.createElement('div');
+                    notesDiv.className = 'notes';
+                    for (let i = 1; i <= 9; i++) {
+                        const note = document.createElement('div');
+                        note.className = 'note';
+                        note.dataset.num = i;
+                        notesDiv.appendChild(note);
+                    }
+                    cell.appendChild(notesDiv);
+                }
+                
+                const noteEl = cell.querySelector(`.note[data-num="${num}"]`);
+                if (noteEl.textContent === String(num)) {
+                    noteEl.textContent = '';
+                } else {
+                    noteEl.textContent = num;
+                }
+            } else {
+                // Enter number
+                history.push({
+                    index: selectedCell,
+                    previous: grid[row][col],
+                    current: num
+                });
+                
+                grid[row][col] = num;
+                cell.innerHTML = num;
+                cell.classList.remove('error');
+                
+                if (solution[row][col] !== num) {
+                    cell.classList.add('error');
+                    mistakes++;
+                    updateStats();
+                    if (mistakes >= maxMistakes) {
+                        gameOver();
+                    }
+                } else {
+                    score += 10;
+                    updateStats();
+                    checkWin();
+                }
+                
+                // Update highlights
+                selectCell(selectedCell);
+            }
+        }
+
+        function erase() {
+            if (selectedCell === null) return;
+            const row = Math.floor(selectedCell / 9);
+            const col = selectedCell % 9;
+            
+            if (grid[row][col] !== 0 && typeof grid[row][col] === 'number') {
+                history.push({
+                    index: selectedCell,
+                    previous: grid[row][col],
+                    current: 0
+                });
+                
+                grid[row][col] = 0;
+                const cells = document.querySelectorAll('.cell');
+                cells[selectedCell].innerHTML = '';
+                cells[selectedCell].classList.remove('error');
+            }
+        }
+
+        function undo() {
+            if (history.length === 0) return;
+            const lastMove = history.pop();
+            const row = Math.floor(lastMove.index / 9);
+            const col = lastMove.index % 9;
+            
+            grid[row][col] = lastMove.previous;
+            const cells = document.querySelectorAll('.cell');
+            const cell = cells[lastMove.index];
+            
+            if (lastMove.previous === 0) {
+                cell.innerHTML = '';
+            } else {
+                cell.innerHTML = lastMove.previous;
+            }
+            cell.classList.remove('error');
+        }
+
+        function hint() {
+            if (selectedCell === null) return;
+            const row = Math.floor(selectedCell / 9);
+            const col = selectedCell % 9;
+            
+            if (grid[row][col] === solution[row][col]) return;
+            
+            grid[row][col] = solution[row][col];
+            const cells = document.querySelectorAll('.cell');
+            cells[selectedCell].innerHTML = solution[row][col];
+            cells[selectedCell].classList.remove('error');
+            score = Math.max(0, score - 5);
+            updateStats();
+            checkWin();
+        }
+
+        function toggleNoteMode() {
+            noteMode = !noteMode;
+            document.getElementById('noteBtn').classList.toggle('active', noteMode);
+        }
+
+        function checkWin() {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (grid[row][col] !== solution[row][col]) return;
+                }
+            }
+            clearInterval(timerInterval);
+            document.getElementById('finalTime').textContent = formatTime(timer);
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('winModal').classList.add('show');
+        }
+
+        function gameOver() {
+            alert('Game Over! Too many mistakes.');
+            newGame();
+        }
+
+        function newGame() {
+            clearInterval(timerInterval);
+            timer = 0;
+            mistakes = 0;
+            score = 0;
+            history = [];
+            selectedCell = null;
+            
+            updateStats();
+            document.getElementById('winModal').classList.remove('show');
+            
+            generateSudoku();
+            renderGrid();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer++;
+                document.getElementById('timer').textContent = formatTime(timer);
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateStats() {
+            document.getElementById('mistakes').textContent = `${mistakes}/${maxMistakes}`;
+            document.getElementById('score').textContent = score;
+        }
+
+        function setDifficulty(diff) {
+            difficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            newGame();
+        }
+
+        function showMenu() {
+            document.getElementById('menuModal').classList.add('show');
+        }
+
+        function closeMenu() {
+            document.getElementById('menuModal').classList.remove('show');
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            
+            // Remove all theme classes
+            document.body.className = '';
+            
+            // Add new theme class if not default
+            if (theme !== 'black-blue') {
+                document.body.classList.add(`theme-${theme}`);
+            }
+            
+            // Update active state in modal
+            document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`.theme-${theme}`).classList.add('active');
+            
+            localStorage.setItem('sudoku-theme', theme);
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '9') {
+                inputNumber(parseInt(e.key));
+            } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                erase();
+            } else if (e.key === 'ArrowUp' && selectedCell !== null && selectedCell >= 9) {
+                selectCell(selectedCell - 9);
+            } else if (e.key === 'ArrowDown' && selectedCell !== null && selectedCell < 72) {
+                selectCell(selectedCell + 9);
+            } else if (e.key === 'ArrowLeft' && selectedCell !== null && selectedCell % 9 !== 0) {
+                selectCell(selectedCell - 1);
+            } else if (e.key === 'ArrowRight' && selectedCell !== null && selectedCell % 9 !== 8) {
+                selectCell(selectedCell + 1);
+            } else if (e.key === 'n') {
+                toggleNoteMode();
+            } else if (e.key === 'z' && e.ctrlKey) {
+                undo();
+            }
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('sudoku-theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
